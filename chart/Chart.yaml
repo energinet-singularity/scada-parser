@@ -1,0 +1,5 @@
+apiVersion: v2
+name: DLR-scada-input
+description: A Helm chart for pushing amps to the DLR algoritme
+type: application
+version: 0.1.0

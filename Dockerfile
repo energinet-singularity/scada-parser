@@ -7,9 +7,9 @@ FROM python:3.10.0-slim-bullseye
 RUN pip3 install kafka-python==2.0.2
 
 # Copy files required for the app to run
-COPY dlr_import_fake.py /DLR/
+COPY dlr_import_amps.py /DLR/
 
 # Declare the port number the container should expose
 
 # Run the application
-CMD ["python3", "/DLR/dlr_import_fake.py"]
+CMD ["python3", "/DLR/dlr_import_amps.py"]
