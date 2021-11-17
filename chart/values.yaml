@@ -21,7 +21,19 @@ affinity: {}
 kafka:
   ip: ""
 
-oag4ReaderDataVolume:
+oag4csvDataVolume:
   accessMode: ReadWriteOnce
   size: 1G
   storageClass: standard
+
+file-mover:
+  folderMounts:
+    input:
+      enabled: true
+      volume:
+        emptyDir: {}
+    output:
+      enabled: true
+      volume:
+        persistentVolumeClaim:
+          claimName: oag4csv-pvc
