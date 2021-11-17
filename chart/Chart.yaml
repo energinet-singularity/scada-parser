@@ -3,3 +3,8 @@ name: DLR-scada-input
 description: A Helm chart for pushing amps to the DLR algoritme
 type: application
 version: 0.1.0
+
+dependecies:
+  - name: file-mover
+    repository: "https://energinet-singularity.github.io/helm-registry/"
+    version: 0.1.0

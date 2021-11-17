@@ -31,6 +31,8 @@ spec:
           env:
             - name: KAFKA_IP
               value: {{ .Values.kafka.ip }}
+            - name: KAFKA_TOPIC
+              value: {{ .Values.kafka.topic }}
           ports:
             - name: http
               containerPort: 80
@@ -41,5 +43,5 @@ spec:
       volumes:
         - name: filestore
           persistentVolumeClaim:
-            claimName: dlr-amps
+            claimName: oag4csv-pvc
             readOnly: false
