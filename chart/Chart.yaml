@@ -4,7 +4,7 @@ description: A Helm chart for pushing amps to the DLR algoritme
 type: application
 version: 0.1.0
 
-dependecies:
+dependencies:
   - name: file-mover
     repository: "https://energinet-singularity.github.io/helm-registry/"
     version: 0.1.0
