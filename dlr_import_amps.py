@@ -7,6 +7,7 @@ from json import dumps
 from kafka import KafkaProducer
 
 IP = os.environ['KAFKA_IP']
+topic_name = os.environ['KAFKA_TOPIC']
 
 producer = KafkaProducer(bootstrap_servers=[IP],
                          value_serializer=lambda x: 
@@ -20,8 +21,7 @@ csv_from_oag_time = 0
 cycle = 5
 show_debug = True
 show_data = True
-topic_name = 'dlr_scada_amps_2'
-#dlr_scada_amps er den rene data topic uden modifikation
+# topic_name = 'dlr_scada_amps'
 
 while True:
     sleep(cycle)
