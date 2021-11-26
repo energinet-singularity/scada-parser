@@ -2,7 +2,7 @@ apiVersion: v2
 name: scada-parser
 description: A Helm chart for pushing amps to the DLR algoritme
 type: application
-version: 0.1.1
+version: 1.0.0
 
 dependencies:
   - name: file-mover

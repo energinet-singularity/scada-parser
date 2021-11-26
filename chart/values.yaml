@@ -17,7 +17,7 @@ file-mover:
 replicaCount: 1
 
 image:
-  repository: dlr-scada-input
+  repository: scada-parser
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "0.1.0"
