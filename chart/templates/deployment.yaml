@@ -32,6 +32,8 @@ spec:
               value: {{ .Values.kafka.ip }}
             - name: KAFKA_TOPIC
               value: {{ .Values.kafka.topic }}
+            - name: KSQL_HOST
+              value: {{ .Values.ksql.host }}
           ports:
             - name: http
               containerPort: 80
