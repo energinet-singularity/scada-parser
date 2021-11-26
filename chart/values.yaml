@@ -2,17 +2,17 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-  file-mover:
-    folderMounts:
-      input:
-        enabled: true
-        volume:
-          emptyDir: {}
-      output:
-        enabled: true
-        volume:
-          persistentVolumeClaim:
-            claimName: oag4csv-pvc
+file-mover:
+  folderMounts:
+    input:
+      enabled: true
+      volume:
+        emptyDir: {}
+    output:
+      enabled: true
+      volume:
+        persistentVolumeClaim:
+          claimName: oag4csv-pvc
 
 replicaCount: 1
 
@@ -20,7 +20,7 @@ image:
   repository: dlr-scada-input
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.0.2"
+  tag: "0.1.0"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -33,6 +33,9 @@ affinity: {}
 kafka:
   ip: ""
   topic: ""
+
+ksql:
+  host: kafka-cp-ksql-server:8088
 
 oag4csvDataVolume:
   accessMode: ReadWriteOnce
