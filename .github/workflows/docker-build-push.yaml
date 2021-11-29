@@ -36,7 +36,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ github.repository }}
+          images: ${{ env.REGISTRY }}
           tags: type=raw, value=${{ env.HELM_VERSION }}
 
       - name: Build and push Docker image
