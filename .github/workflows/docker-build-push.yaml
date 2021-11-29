@@ -30,7 +30,7 @@ jobs:
 
       - name: Get helm chart version
         run: | 
-          echo HELM_VERSION=$(grep "version: "chart/Chart.yaml | cut -f2 -d' ') >> $GITHUB_ENV
+          echo HELM_VERSION=$(grep "version: " chart/Chart.yaml | cut -f2 -d' ') >> $GITHUB_ENV
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
