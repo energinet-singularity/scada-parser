@@ -12,4 +12,4 @@ COPY dlr_import_amps.py ksql-config.json /DLR/
 # Declare the port number the container should expose
 
 # Run the application
-CMD ["python3", "/DLR/dlr_import_amps.py"]
+CMD ["python3", "-u", "/DLR/dlr_import_amps.py"]
