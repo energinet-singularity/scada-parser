@@ -81,13 +81,12 @@ else:
 while True:
     sleep(cycle)
     if show_debug: print('Container running')
+    #-- Check for if the given filepath exist
+    if not os.path.isfile(file_path):
+        print('File is missing')
+        continue
     if os.stat(file_path).st_mtime > csv_from_oag_time:
         if show_debug: print('Import starting')
-
-        #-- Check for if the given filepath exist
-        if not os.path.isfile(file_path):
-            print('File is missing')
-            continue
 
         #-- Update timestamp on file
         csv_from_oag_time = os.stat(file_path).st_mtime
