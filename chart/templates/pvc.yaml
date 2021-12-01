@@ -5,8 +5,8 @@ metadata:
   name: scada-parser-pvc
 spec:
   accessModes:
-    - {{ .Values.oag4csvDataVolume.accessMode }}
+    - {{ .Values.scada-parserDataVolume.accessMode }}
   resources:
     requests:
-      storage: {{ .Values.oag4csvDataVolume.size }}
-  storageClassName: {{ .Values.oag4csvDataVolume.storageClass }}
+      storage: {{ .Values.scada-parserDataVolume.size }}
+  storageClassName: {{ .Values.scada-parserDataVolume.storageClass }}
