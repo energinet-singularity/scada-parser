@@ -12,7 +12,7 @@ file-mover:
       enabled: true
       volume:
         persistentVolumeClaim:
-          claimName: oag4csv-pvc
+          claimName: scada-parser-pvc
 
 replicaCount: 1
 
@@ -37,7 +37,7 @@ kafka:
 ksql:
   host: kafka-cp-ksql-server:8088
 
-oag4csvDataVolume:
+scada-parserDataVolume:
   accessMode: ReadWriteOnce
   size: 1G
   storageClass: standard

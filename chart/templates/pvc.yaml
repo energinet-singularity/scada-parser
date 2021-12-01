@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: oag4csv-pvc
+  name: scada-parser-pvc
 spec:
   accessModes:
     - {{ .Values.oag4csvDataVolume.accessMode }}

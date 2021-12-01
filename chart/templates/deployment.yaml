@@ -43,5 +43,5 @@ spec:
       volumes:
         - name: filestore
           persistentVolumeClaim:
-            claimName: oag4csv-pvc
+            claimName: scada-parser-pvc
             readOnly: false
