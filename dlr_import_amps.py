@@ -2,6 +2,7 @@ from time import sleep
 import csv
 import json
 import os
+import sys
 import requests
 from datetime import datetime
 from json import dumps
@@ -10,24 +11,27 @@ from kafka import KafkaProducer
 IP = os.environ['KAFKA_IP']
 topic_name = os.environ['KAFKA_TOPIC']
 ksql_host = os.environ.get('KSQL_HOST', "kafka-cp-ksql-server")
-
-producer = KafkaProducer(bootstrap_servers=[IP],
-                         value_serializer=lambda x: 
-                         x.encode('utf-8'))
+ksql_stream = os.environ.get('KSQL_STREAM')
+ksql_table = os.environ.get('KSQL_TABLE')
 
 #--- Variables and initialization
-#file_path = '/home/thomas/Desktop/workspace/data/test_out.IMP'
 file_path = '/data/test_out.IMP'
 json_data = json.loads('[]')
 csv_from_oag_time = 0
 cycle = 5
 show_debug = True
 show_data = True
-# topic_name = 'dlr_scada_amps'
 
-#Function
+ksql_config = {
+    "config":[
+        {"TYPE": "STREAM", "NAME": f"{ksql_stream}", "CONFIG": f"(MRID VARCHAR, VALUE DOUBLE, QUALITY INTEGER, TIME VARCHAR) WITH (KAFKA_TOPIC='{topic_name}', VALUE_FORMAT='JSON')"},
+        {"TYPE": "TABLE", "NAME": f"{ksql_table}", "CONFIG": "AS SELECT MRID, LATEST_BY_OFFSET(VALUE) AS VALUE_LATEST, LATEST_BY_OFFSET(QUALITY) AS QUALITY_LATEST, LATEST_BY_OFFSET(TIME) AS TIME_LATEST FROM DLR_AMPS GROUP BY MRID EMIT CHANGES"}
+    ]
+}
+
+#-- Function
 def setup_ksql(ksql_host: str, ksql_config: json):
-    #Verifying connection
+    #-- Verifying connection
     print(f"Validating kSQLdb setup on host '{ksql_host}'..")
     
     try:
@@ -67,16 +71,20 @@ def setup_ksql(ksql_host: str, ksql_config: json):
     print('kSQL setup has been validated.')
     return True
 
-# Variables (ksql_host should be an environment variables, note the new json-file)
-# ksql_host = "kafka-cp-ksql-server:8088"
-ksql_config = json.loads(open("./DLR/ksql-config.json").read())
-
 # Function call
 if setup_ksql(ksql_host, ksql_config):
     print("kSQL setup validated/created.")
 else:
     print("kSQL setup could not be validated/created.")
 
+#-- Main function
+try:
+    producer = KafkaProducer(bootstrap_servers=[IP],
+                            value_serializer=lambda x: 
+                            x.encode('utf-8'))
+except Exception:
+    print("Connection to kafka have failed. Please check enviroment variable 'IP' and recreate the container")
+    sys.exit(1)
 
 while True:
     sleep(cycle)
@@ -85,6 +93,7 @@ while True:
     if not os.path.isfile(file_path):
         print('File is missing')
         continue
+    #-- Start importing data if the file have a new timestamp
     if os.stat(file_path).st_mtime > csv_from_oag_time:
         if show_debug: print('Import starting')
 
@@ -112,4 +121,5 @@ while True:
         for i in json_data:
             producer.send(topic_name, value=json.dumps(i))
         if show_debug: print('Import succesfull')
+        #-- clearing the cache of output data
         json_data = json.loads('[]')
