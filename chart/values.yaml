@@ -36,6 +36,8 @@ kafka:
 
 ksql:
   host: kafka-cp-ksql-server:8088
+  stream: ""
+  table: ""
 
 scadaparserDataVolume:
   accessMode: ReadWriteOnce

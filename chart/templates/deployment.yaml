@@ -33,6 +33,10 @@ spec:
               value: {{ .Values.kafka.topic }}
             - name: KSQL_HOST
               value: {{ .Values.ksql.host }}
+            - name: KSQL_STREAM
+              value: {{ .Values.ksql.stream }}
+            - name: KSQL_TABLE
+              value: {{ .Values.ksql.table }}
           ports:
             - name: http
               containerPort: 80
