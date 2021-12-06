@@ -19,6 +19,7 @@ file_path = '/data/test_out.IMP'
 json_data = json.loads('[]')
 csv_from_oag_time = 0
 cycle = 5
+ksql_valid = False
 show_debug = True
 show_data = True
 
@@ -74,6 +75,7 @@ def setup_ksql(ksql_host: str, ksql_config: json):
 # Function call
 if setup_ksql(ksql_host, ksql_config):
     print("kSQL setup validated/created.")
+    ksql_valid = True
 else:
     print("kSQL setup could not be validated/created.")
 
@@ -88,11 +90,18 @@ except Exception:
 
 while True:
     sleep(cycle)
+
+    #Starting with checking that the ksql streams and tables exist
+    if not ksql_valid:
+        if setup_ksql(ksql_host, ksql_config): ksql_valid = True
+    
     if show_debug: print('Container running')
+
     # Check for if the given filepath exist
     if not os.path.isfile(file_path):
         print('File is missing')
         continue
+    
     # Start importing data if the file have a new timestamp
     if os.stat(file_path).st_mtime > csv_from_oag_time:
         if show_debug: print('Import starting')
