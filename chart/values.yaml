@@ -35,7 +35,7 @@ kafka:
   topic: ""
 
 ksql:
-  host: kafka-cp-ksql-server:8088
+  host: ""
   stream: ""
   table: ""
 
