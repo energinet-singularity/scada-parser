@@ -14,6 +14,22 @@ ksql_table = os.environ['KSQL_TABLE']
 topic_name = os.environ['KAFKA_TOPIC']
 ksql_stream = os.environ['KSQL_STREAM']
 
+if IP == "":
+    print('Input on IP is not set')
+    sys.exit(1)
+if ksql_host == "":
+    print('Input on ksql_host is not set')
+    sys.exit(1)
+if ksql_table == "":
+    print('Input on ksql_table is not set')
+    sys.exit(1)
+if topic_name == "":
+    print('Input on topic_name is not set')
+    sys.exit(1)
+if ksql_stream == "":
+    print('Input on ksql_stream is not set')
+    sys.exit(1)
+
 # Variables and initialization
 file_path = '/data/test_out.IMP'
 json_data = json.loads('[]')
@@ -78,18 +94,16 @@ try:
                             x.encode('utf-8'))
 except Exception:
     print("Connection to kafka have failed. Please check enviroment variable 'IP' and if needed recreate the container")
+    sys.exit(1)
 
 # Main function
 while True:
-    start = time.time()
     time.sleep(cycle)
+    start = time.time()
 
     # Starting with checking that the ksql streams and tables needed for the DLR algorithm exist
     if not setup_ksql(ksql_host, ksql_config):
-        print('ksql failed validation')
         continue
-    else:
-        print('ksql passed validation')
     
     if show_debug: print('Container running')
 
@@ -100,31 +114,30 @@ while True:
 
     # Start importing data if the file have a new timestamp
     if os.stat(file_path).st_mtime > csv_from_oag_time:
-        if show_debug: print('Import starting')
+        print('Import starting')
 
         # Update timestamp from file
         csv_from_oag_time = os.stat(file_path).st_mtime
-        if show_debug: print(datetime.fromtimestamp(csv_from_oag_time))
+        print(datetime.fromtimestamp(csv_from_oag_time))
         
-        # Get the new data
-        csv_file = open(file_path, "r")
-        input_data = csv_file.read().splitlines()
-        csv_file.close()
-
-        # Shaping data
-        for csv_line in input_data:
-            obj_values = [x.strip() for x in csv_line.split(",")]
-            json_data.append({"MRID":obj_values[0],"Value":float(obj_values[1]), 
-            "Quality":int(obj_values[2]), "Time":datetime.fromtimestamp(csv_from_oag_time).strftime('%Y-%m-%d %H:%M:%S')})
+        # Reading and shaping data
+        with open(file_path, 'r', newline = '') as f:
+            reader = csv.reader(f, delimiter = ',')
+            for row in reader:
+                json_data.append({
+                    "MRID":row[0],
+                    "Value":float(row[1]), 
+                    "Quality":int(row[2]), 
+                    "Time":datetime.fromtimestamp(csv_from_oag_time).strftime('%Y-%m-%d %H:%M:%S')
+                })
 
         # Debug/data information if needed
         if show_data: print(json.dumps(json_data,indent=4))
-        if show_debug: print(type(json_data))
 
         # Sending data to the given topic name the container was created with
         for i in json_data:
             producer.send(topic_name, value=json.dumps(i))
-        if show_debug: print('Import succesfull')
+        print('Import succesfull')
 
         # Clearing the cache of output data
         json_data = json.loads('[]')
