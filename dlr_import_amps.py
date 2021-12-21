@@ -31,7 +31,7 @@ if ksql_stream == "":
     sys.exit(1)
 
 # Variables and initialization
-file_path = '/data/test_out.IMP'
+file_path = '/data/DLR_kafka_out.IMP'
 json_data = json.loads('[]')
 csv_from_oag_time = 0
 show_debug = True
