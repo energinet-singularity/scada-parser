@@ -6,7 +6,7 @@ image:
   repository: ghcr.io/energinet-singularity/scada-parser/energinet-singularity/scada-parser
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.0.2"
+  tag: "1.0.3"
 
 file-mover:
   folderMounts:
@@ -26,12 +26,15 @@ file-mover:
   affinity:
     podAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
+      - weight: 1
+        podAffinityTerm:
+          labelSelector:
             matchExpressions:
               - key: scada-fm-parser
                 operator: In
                 values:
                 - S1
+          topologyKey: "kubernetes.io/hostname"
 
 replicaCount: 1
 
@@ -48,6 +51,7 @@ affinity:
               operator: In
               values:
               - S1
+        topologyKey: "kubernetes.io/hostname"
 
 imagePullSecrets: []
 nameOverride: ""
