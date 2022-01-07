@@ -7,4 +7,4 @@ version: 1.0.2
 dependencies:
   - name: file-mover
     repository: "https://energinet-singularity.github.io/helm-registry/"
-    version: 1.0.4
+    version: 1.0.5
