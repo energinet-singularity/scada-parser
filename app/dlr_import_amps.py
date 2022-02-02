@@ -46,19 +46,16 @@ except KeyError:
 # Function
 def setup_ksql(ksql_host: str, ksql_config: json):
     # Verifying connection
-    print(f"Validating kSQLdb setup on host '{ksql_host}'..")
+    log.info(f"Validating kSQLdb setup on host '{ksql_host}'..")
     
     try:
         response = requests.get(f"http://{ksql_host}/info")
-    except Exception:
-        print(f"Rest API on 'http://{ksql_host}/info' did not respond as expected. Make sure environment variable 'KSQL_HOST' is correct.")
-        return False
-    
-    if response.status_code == 200:
-        print('Host responded in an orderly fashion..')
-    else:
-        print(f"Rest API on 'http://{ksql_host}/info' did not respond as expected. Make sure environment variable 'KSQL_HOST' is correct.")
-        return False
+        if response.status_code != 200:
+            raise Exception('Host responded with error.')
+    except Exception as e:
+        log.exception(e)
+        log.exception(f"Rest API on 'http://{ksql_host}/info' did not respond as expected." +
+                      " Make sure environment variable 'KSQL_HOST' is correct.")
 
     # Verifying streams and tables
     response = requests.post(f"http://{ksql_host}/ksql",json={"ksql": f"LIST STREAMS; LIST TABLES;", "streamsProperties": {}})
@@ -69,20 +66,20 @@ def setup_ksql(ksql_host: str, ksql_config: json):
             # Check if the item is in the lists returned by kSQL
             if ksql_item['NAME'] in ksql_existing_config[ksql_item['TYPE']]:
                 # Found - log it, but do nothing
-                print(f'{ksql_item["TYPE"].capitalize()} \'{ksql_item["NAME"]}\' was found.')
+                log.info(f'{ksql_item["TYPE"].capitalize()} \'{ksql_item["NAME"]}\' was found.')
             else:
                 # Not found - try creating it
                 response = requests.post(f"http://{ksql_host}/ksql",json={"ksql": f"CREATE {ksql_item['TYPE']} {ksql_item['NAME']} {ksql_item['CONFIG']};", "streamsProperties": {}})
                 if response.status_code == 200 and response.json().pop()['commandStatus']['status'] == 'SUCCESS':
-                    print(f'{ksql_item["TYPE"].capitalize()} \'{ksql_item["NAME"]}\' created.')
+                    log.info(f'{ksql_item["TYPE"].capitalize()} \'{ksql_item["NAME"]}\' created.')
                 else:
-                    print(f'Problem while trying to create {ksql_item["TYPE"].lower()}  \'{ksql_item["NAME"]}\'.')
+                    log.error(f'Problem while trying to create {ksql_item["TYPE"].lower()}  \'{ksql_item["NAME"]}\'.')
                     return False
     else:
-        print('Error while gettings streams and tables from kSQL.')
+        log.error('Error while gettings streams and tables from kSQL.')
         return False
     
-    print('kSQL setup validated/created.')
+    log.info('kSQL setup validated/created.')
     return True
 
 
@@ -98,8 +95,6 @@ if __name__ == "__main__":
     file_path = '/data/DLR_kafka_out.IMP'
     json_data = json.loads('[]')
     csv_from_oag_time = 0
-    show_debug = True
-    show_data = True
     cycle = 5
 
     ksql_config = {
@@ -115,7 +110,7 @@ if __name__ == "__main__":
                                 value_serializer=lambda x: 
                                 x.encode('utf-8'))
     except Exception:
-        print("Connection to kafka have failed. Please check enviroment variable 'IP' and if needed recreate the container")
+        log.error("Connection to kafka have failed. Please check enviroment variable 'ip' and if needed recreate the container")
         sys.exit(1)
 
     while True:
@@ -126,20 +121,20 @@ if __name__ == "__main__":
         if not setup_ksql(ksql_host, ksql_config):
             continue
         
-        if show_debug: print('Container running')
+        log.info('Container running')
 
         # Check for if the given filepath exist
         if not os.path.isfile(file_path):
-            print('File is missing')
+            log.error('File is missing')
             continue
 
         # Start importing data if the file have a new timestamp
         if os.stat(file_path).st_mtime > csv_from_oag_time:
-            print('Import starting')
+            log.info('Import starting')
 
             # Update timestamp from file
             csv_from_oag_time = os.stat(file_path).st_mtime
-            print(datetime.fromtimestamp(csv_from_oag_time))
+            log.info(datetime.fromtimestamp(csv_from_oag_time))
             
             # Reading and shaping data
             with open(file_path, 'r', newline = '') as f:
@@ -153,14 +148,14 @@ if __name__ == "__main__":
                     })
 
             # Debug/data information if needed
-            if show_data: print(json.dumps(json_data,indent=4))
+            log.info(json.dumps(json_data,indent=4))
 
             # Sending data to the given topic name the container was created with
             for i in json_data:
                 producer.send(topic_name, value=json.dumps(i))
-            print('Import succesfull')
+            log.info('Import succesfull')
 
             # Clearing the cache of output data
             json_data = json.loads('[]')
             end = time.time()
-            if show_debug: print(f'Runtime of the program is {end - start}')
+            log.info(f'Runtime of the program is {end - start}')
