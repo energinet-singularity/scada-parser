@@ -1,15 +1,14 @@
 # The base image
 FROM python:3.10.0-slim-bullseye
 
-# Install python and pip
-
 # Install Python modules needed by the Python app
-RUN pip3 install kafka-python==2.0.2 requests --no-cache-dir
+COPY app/requirements.txt /
+RUN pip3 install --upgrade pip && pip3 install -r requirements.txt --no-cache-dir && rm requirements.txt
 
 # Copy files required for the app to run
-COPY dlr_import_amps.py /DLR/
+COPY app/* /app/
 
 # Declare the port number the container should expose
 
 # Run the application
-CMD ["python3", "-u", "/DLR/dlr_import_amps.py"]
+CMD ["python3", "-u", "/app/dlr_import_amps.py"]
