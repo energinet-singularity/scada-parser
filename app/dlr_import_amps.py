@@ -13,33 +13,33 @@ from kafka import KafkaProducer
 log = logging.getLogger(__name__)
 
 try:
-    IP = os.environ.get('KAFKA_IP')
+    ip = os.environ.get('KAFKA_IP')
 except KeyError:
-    log.warning('Input on KAFKA_IP is not set')
+    log.error('Input on KAFKA_IP is not set')
     sys.exit(1)
 
 try:
     ksql_host = os.environ.get('KSQL_HOST')
 except KeyError:
-    log.warning('Input on KSQL_HOST is not set')
+    log.error('Input on KSQL_HOST is not set')
     sys.exit(1)
 
 try:
     ksql_table = os.environ.get('KSQL_TABLE')
 except KeyError:
-    log.warning('Input on KSQL_TABLE is not set')
+    log.error('Input on KSQL_TABLE is not set')
     sys.exit(1)
 
 try:
     topic_name = os.environ.get('KAFKA_TOPIC')
 except KeyError:
-    log.warning('Input on KAFKA_TOPIC is not set')
+    log.error('Input on KAFKA_TOPIC is not set')
     sys.exit(1)
 
 try:
     ksql_stream = os.environ.get('KSQL_STREAM')
 except KeyError:
-    log.warning('Input on KSQL_STREAM is not set')
+    log.error('Input on KSQL_STREAM is not set')
     sys.exit(1)
 
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     # Trying kafka connection on first startup
     try:
-        producer = KafkaProducer(bootstrap_servers=[IP],
+        producer = KafkaProducer(bootstrap_servers=[ip],
                                 value_serializer=lambda x: 
                                 x.encode('utf-8'))
     except Exception:

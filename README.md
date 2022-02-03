@@ -1,21 +1,22 @@
-# DLR Parser
+# SCADA parser
 
-A container that parses messages from a kafka topic and converts it into a CSV file.
+A container that parses messages from a CSV file to a kafka topic.
 
 ## Description
 
-This repository contains a python-script that will read messages provided by a kafka broker. The data will be shaped into a specific format needed for the application by the script. The script is intended to be run as part of a container/kubernetes, so a Dockerfile is provided as well, as is a set of helm charts.
+This repository contains a python-script that will produce messages to a kafka broker. The data will be shaped into a specific format needed for the application it is delivering messages for. The script is intended to be run as part of a container/kubernetes, so a Dockerfile is provided as well, as is a set of helm charts.
 
 ### Exposed environment variables:
 
 | Name | Description |
 |--|--|
-|KAFKA_TOPIC|The topic the script will read messages from on the kafka-broker|
 |KAFKA_IP|Host-name or IP+Port of the kafka-broker|
-|FILE_NAME|Name of the file created on the volume|
-|SHAPE_DATA|Parameter to disable shaping of the data and instead generate a file directly from the json list received from kafka topic|
+|KSQL_HOST|Host-name or IP+Port of the ksql server|
+|KSQL_STREAM|Name of the stream created on the kSQL server|
+|KSQL_TABLE|Name of the table created on the kSQL server|
+|KAFKA_TOPIC|The topic the script will produce messages to on the kafka-broker|
 
-### Kafka messages / Input
+### Kafka messages / Output
 
 As default the system will be configured to shape data for DLR. However it is possible to disable shaping of data and take any list of json, to utilize the generel functionality use environment variable 'shape_data' and set it to 'False'.
 If shaping of data is disabled, any message consisting of a list with json formatted structure will work. See below for an example of such a list:
@@ -25,9 +26,9 @@ If shaping of data is disabled, any message consisting of a list with json forma
  ....,\
 ]
 
-### File handling / Output
+### File handling / Input
 
-The output will be a file located on the volume in the folder /data/'file_name.xxx'.
+The input will be a file located on the volume in the folder /data/'file_name.xxx'. The usecase is very specific to the format of the file provided and therefore there is no option to specify another file/folder to the script. It would have been easy to give the option to do so but since you would have to rewrite the shape of the input data in the script anyways it have been choosen to not give the filepath as an environment variable.
 
 ## Getting Started
 
@@ -56,20 +57,20 @@ Built and tested on version 3.7.0.
 
 1. Clone the repo to a suitable place
 ````bash
-git clone https://github.com/energinet-singularity/dlr-parser.git
+git clone https://github.com/energinet-singularity/scada-parser.git
 ````
 
 2. Build the container and create a volume
 ````bash
-docker build dlr-parser/ -t dlr-parser:latest
-docker volume create dlr-files
+docker build scada-parser/ -t scada-parser:latest
+docker volume create scada-files
 ````
 
-3. Start the container in docker (change kafka-host, kafka_topic and file_name to fit your environment)
+3. Start the container in docker (change kafka-ip, kafka_topic, ksql_host, ksql_table, and ksql_stream to fit your environment)
 ````bash
-docker run -v dlr-files:/data/ -e KAFKA_IP=192.1.1.1:9092 -e KAFKA_TOPIC=test -e FILE_NAME=testname.csv -e SHAPE_DATA=False -it --rm dlr-parser:latest
+docker run -v scada-files:/data/ -e KAFKA_IP=192.1.1.1:9092 -e KAFKA_TOPIC=test -e KSQL_HOST=192.1.1.1 -e KSQL_TABLE=test-table -e KSQL_STREAM=test-stream  -it --rm scada-parser:latest
 ````
-The container will now be running interactively and you will be able to see the log output. To create a file, you will have to supply data to the consumed topic. This can be done by another container streaming data to the broker, or manually from another small python script. Remember to use the structure of the input data, see section Kafka messages / Input.
+The container will now be running interactively and you will be able to see the log output. To parse a forecast, it will have to be delivered to the volume somehow. This can be done by another container mapped to the same volume, or manually from another bash-client.
 
 ## Help
 
@@ -78,11 +79,6 @@ The container will now be running interactively and you will be able to see the 
 For anything else, please submit an issue or ask the authors.
 
 ## Version History
-
-* 1.1.4:
-    * Added a way to disable project related shaping of data. Therefore it is possible to pass any list of json from Kafka by setting this parameter to False.
-    * Added general documentation to the repository, mainly foccused on the README.md
-    * Added python standard logging to the script
 
 * 1.1.3:
     * First production-ready version
