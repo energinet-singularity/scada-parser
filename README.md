@@ -4,7 +4,7 @@ A container that parses messages from a CSV file to a kafka topic.
 
 ## Description
 
-This repository contains a python-script that will produce messages to a kafka broker. The data will be shaped into a specific format needed for the application it is delivering messages for. The script is intended to be run as part of a container/kubernetes, so a Dockerfile is provided as well, as is a set of helm charts.
+This repository contains a python-script that will produce messages to a kafka broker. The data will be shaped into a specific format needed for the application it is delivering messages to. The script is intended to be run as part of a container/kubernetes, so a Dockerfile is provided as well, as is a set of helm charts.
 
 ### Exposed environment variables:
 
@@ -18,17 +18,16 @@ This repository contains a python-script that will produce messages to a kafka b
 
 ### Kafka messages / Output
 
-As default the system will be configured to shape data for DLR. However it is possible to disable shaping of data and take any list of json, to utilize the generel functionality use environment variable 'shape_data' and set it to 'False'.
-If shaping of data is disabled, any message consisting of a list with json formatted structure will work. See below for an example of such a list:
+The messages on the kafka topic will have the following structure:
 
-[{"Name":"John", "age":30, "Years to service":1, "Production year":2010, "Color":"Blue"},\
- {"Name":"Jesper", "age":42, "Years to service":4, "Production year":2022, "Color":"Black"},\
+[{"MRID":"askfdjgi666jgju", "Value":30.584, "Quality":0, "Time":"2022-02-04 07:49:01"},\
+ {"MRID":"hkvhdufg6678kha", "Value":89.522, "Quality":0, "Time":"2022-02-04 07:49:01"},\
  ....,\
 ]
 
 ### File handling / Input
 
-The input will be a file located on the volume in the folder /data/'file_name.xxx'. The usecase is very specific to the format of the file provided and therefore there is no option to specify another file/folder to the script. It would have been easy to give the option to do so but since you would have to rewrite the shape of the input data in the script anyways it have been choosen to not give the filepath as an environment variable.
+The input will be a file located on the volume in the folder '/data/DLR_kafka_out.IMP'. The usecase is very specific to the format of the file provided and therefore there is no option to specify another file/folder to the script. It would have been easy to give the option to do so but since you would have to rewrite the shape of the input data in the script anyways it have been choosen to not give the filepath as an environment variable.
 
 ## Getting Started
 
@@ -39,7 +38,8 @@ Feel free to either import the python-file as a lib or run it directly - or use 
 ### Dependencies
 
 * To run the script a kafka broker must be available (use the 'KAFKA_IP' environment variable).
-* A kafka topic with input data. An example of this data can be taken from tests/test_export_data.py variable "data".
+* A Kafka topic to recieve the data taken from the csv file.
+* To run the script a KSQL server must be available (use the 'KSQL_HOST' environment variable).
 
 #### Python (if not run as part of the container)
 
@@ -70,7 +70,7 @@ docker volume create scada-files
 ````bash
 docker run -v scada-files:/data/ -e KAFKA_IP=192.1.1.1:9092 -e KAFKA_TOPIC=test -e KSQL_HOST=192.1.1.1 -e KSQL_TABLE=test-table -e KSQL_STREAM=test-stream  -it --rm scada-parser:latest
 ````
-The container will now be running interactively and you will be able to see the log output. To parse a forecast, it will have to be delivered to the volume somehow. This can be done by another container mapped to the same volume, or manually from another bash-client.
+The container will now be running interactively and you will be able to see the log output. To parse a file, it will have to be delivered to the volume somehow. This can be done by another container mapped to the same volume, or manually from another bash-client by the use of sudo command.
 
 ## Help
 
@@ -80,7 +80,12 @@ For anything else, please submit an issue or ask the authors.
 
 ## Version History
 
-* 1.1.3:
+* 1.1.3
+    * Added standard python logging module
+    * Created README.md
+    * Set up structure of the repo
+
+* 1.1.2:
     * First production-ready version
     <!---* See [commit change]() or See [release history]()--->
 

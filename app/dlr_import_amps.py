@@ -100,7 +100,7 @@ if __name__ == "__main__":
     ksql_config = {
         "config":[
             {"TYPE": "STREAM", "NAME": f"{ksql_stream}", "CONFIG": f"(MRID VARCHAR, VALUE DOUBLE, QUALITY INTEGER, TIME VARCHAR) WITH (KAFKA_TOPIC='{topic_name}', VALUE_FORMAT='JSON')"},
-            {"TYPE": "TABLE", "NAME": f"{ksql_table}", "CONFIG": "AS SELECT MRID, LATEST_BY_OFFSET(VALUE) AS VALUE_LATEST, LATEST_BY_OFFSET(QUALITY) AS QUALITY_LATEST, LATEST_BY_OFFSET(TIME) AS TIME_LATEST FROM DLR_AMPS GROUP BY MRID EMIT CHANGES"}
+            {"TYPE": "TABLE", "NAME": f"{ksql_table}", "CONFIG": f"AS SELECT MRID, LATEST_BY_OFFSET(VALUE) AS VALUE_LATEST, LATEST_BY_OFFSET(QUALITY) AS QUALITY_LATEST, LATEST_BY_OFFSET(TIME) AS TIME_LATEST FROM '{ksql_stream}' GROUP BY MRID EMIT CHANGES"}
         ]
     }
 
@@ -110,7 +110,7 @@ if __name__ == "__main__":
                                 value_serializer=lambda x: 
                                 x.encode('utf-8'))
     except Exception:
-        log.error("Connection to kafka have failed. Please check enviroment variable 'ip' and if needed recreate the container")
+        log.error("Connection to kafka have failed. Please check enviroment variable 'KAFKA_IP' and if needed recreate the container")
         sys.exit(1)
 
     while True:
@@ -147,7 +147,7 @@ if __name__ == "__main__":
                         "Time":datetime.fromtimestamp(csv_from_oag_time).strftime('%Y-%m-%d %H:%M:%S')
                     })
 
-            # Debug/data information if needed
+            # Data information it send to the log
             log.info(json.dumps(json_data,indent=4))
 
             # Sending data to the given topic name the container was created with
