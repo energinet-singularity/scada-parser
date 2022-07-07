@@ -72,7 +72,7 @@ def load_dlr_file(file_path: str) -> dict:
             json_data.append({
                 "MRID": row[0],
                 "Value": float(row[1]),
-                "Quality": int(row[2]),
+                "Quality": str(row[2]),
                 "Time": datetime.fromtimestamp(os.stat(file_path).st_mtime).strftime('%Y-%m-%d %H:%M:%S')
             })
 

@@ -6,7 +6,7 @@ image:
   repository: ghcr.io/energinet-singularity/scada-parser/energinet-singularity/scada-parser
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.1.3"
+  tag: "1.1.4"
 
 file-mover:
   folderMounts:
