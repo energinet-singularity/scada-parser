@@ -29,7 +29,7 @@ def test_parsefile(tmpdir, caplog):
     for i, item in enumerate(test_json):
         assert item['MRID'] == str(i+1)*16
         assert item['Value'] == (i+1)*11.1111
-        assert item['Quality'] == 0
+        assert item['Quality'] == "0"
         assert item['Time'] == timestamp
 
         log.debug(f"Validated row: {item}")
